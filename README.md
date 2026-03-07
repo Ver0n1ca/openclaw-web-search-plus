@@ -6,6 +6,7 @@ It bundles its own Python backend script and supports:
 - **Serper (Google)** — best for factual/shopping queries
 - **Tavily** — best for research & analysis
 - **Exa (Neural)** — best for discovery & semantic search
+- **Perplexity** — AI-synthesized answers with citations
 - **You.com** — real-time web + RAG
 - **SearXNG** — self-hosted privacy-first search
 
@@ -17,7 +18,7 @@ The tool auto-routes queries by intent or you can force a specific provider.
 - Runs bundled script at `scripts/search.py`
 - Supports:
   - `query` (required)
-  - `provider` (`serper` | `tavily` | `exa` | `you` | `searxng` | `auto`)
+  - `provider` (`serper` | `tavily` | `exa` | `perplexity` | `you` | `searxng` | `auto`)
   - `count` (result count)
 
 ## Installation
@@ -52,6 +53,7 @@ At least one provider key is required:
 - `SERPER_API_KEY` — [console.serper.dev](https://console.serper.dev)
 - `TAVILY_API_KEY` — [tavily.com](https://tavily.com)
 - `EXA_API_KEY` — [exa.ai](https://exa.ai)
+- `KILOCODE_API_KEY` or `PERPLEXITY_API_KEY` — [perplexity.ai](https://docs.perplexity.ai) (optional, also works via [Kilo Gateway](https://kilocode.ai))
 - `YOU_API_KEY` — [you.com/api](https://you.com/api) (optional)
 - `SEARXNG_URL` — your SearXNG instance URL (optional, self-hosted)
 
