@@ -1,9 +1,22 @@
 {
   "name": "web-search-plus-plugin",
-  "version": "1.1.3",
-  "description": "OpenClaw plugin: multi-provider web search (Serper/Google, Tavily, Exa) as native tool",
+  "version": "1.1.4",
+  "description": "OpenClaw plugin: multi-provider web search (Serper/Google, Tavily, Exa, Perplexity) as native tool",
   "type": "module",
-  "keywords": ["openclaw", "plugin", "search", "serper", "tavily", "exa"],
+  "main": "index.ts",
+  "files": [
+    "index.ts",
+    "openclaw.plugin.json",
+    "scripts/",
+    ".env.template",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": ["openclaw", "plugin", "search", "serper", "tavily", "exa", "perplexity", "web-search"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robbyczgw-cla/web-search-plus-plugin"
+  },
   "author": "robbyczgw-cla",
   "license": "MIT"
 }
