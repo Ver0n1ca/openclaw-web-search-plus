@@ -3,15 +3,18 @@
 All notable changes to web-search-plus-plugin are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) + [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] - 2026-03-11
+
+### Added
+- **26 missing signal patterns** from gap analysis testing:
+  - **LOCAL_NEWS_SIGNALS** (+9 German): "in der nähe", "in meiner nähe", "öffnungszeiten", "adresse von", "wegbeschreibung nach", "heute", "morgen", "aktuell", "nachrichten"
+  - **EXA_DEEP_SIGNALS** (+8): "research on/about/into", "whitepaper", "technical report", "survey of", "meta-analysis", "systematic review", "case study", "benchmarking"
+  - **EXA_DEEP_REASONING_SIGNALS** (+5): "trade-offs", "pros and cons of", "should I use/choose/pick", "which is better", "vergleiche/vergleichen" (DE)
+  - **DIRECT_ANSWER_SIGNALS** (+4 German): "wann", "wer", "wo", "wie viele"
+
 ## [1.2.0] - 2026-03-11
 
 ### Added
-
-#### Signal pattern coverage (gap analysis)
-- **LOCAL_NEWS_SIGNALS** — 9 German patterns: "in der nähe", "in meiner nähe", "öffnungszeiten", "adresse von", "wegbeschreibung nach", "heute", "morgen", "aktuell", "nachrichten"
-- **EXA_DEEP_SIGNALS** — 8 new patterns: "research on/about/into", "whitepaper", "technical report", "survey of", "meta-analysis", "systematic review", "case study", "benchmarking"
-- **EXA_DEEP_REASONING_SIGNALS** — 5 new patterns: "trade-offs", "pros and cons of", "should I use/choose/pick", "which is better", "vergleiche/vergleichen" (DE)
-- **DIRECT_ANSWER_SIGNALS** — 4 German patterns: "wann", "wer", "wo", "wie viele"
 
 #### Exa Deep Research (`deep` + `deep-reasoning`)
 - **New `depth` tool parameter** — agents can now request `depth: "deep"` (multi-source synthesis, 4-12s, $12/1k requests) or `depth: "deep-reasoning"` (cross-document reasoning with deeper analysis, 12-50s, $15/1k requests) when searching via Exa
