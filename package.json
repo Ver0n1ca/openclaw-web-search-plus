@@ -7,7 +7,7 @@
   "files": [
     "index.ts",
     "openclaw.plugin.json",
-    "scripts/",
+    "scripts/*.py",
     ".env.template",
     "README.md",
     "LICENSE"
