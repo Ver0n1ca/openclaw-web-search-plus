@@ -3,6 +3,33 @@
 All notable changes to web-search-plus-plugin are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) + [Semantic Versioning](https://semver.org/).
 
+## [1.2.2] - 2026-03-11
+
+### Fixed
+
+#### Fallback chain dies on unconfigured provider (critical)
+- **`sys.exit(1)` → `ProviderConfigError` exception** in `validate_api_key()` — when a provider had no API key, `sys.exit(1)` raised `SystemExit` (inherits from `BaseException`), which bypassed the `except Exception` handler in the fallback loop and killed the entire process. Now raises a catchable `ProviderConfigError` instead, allowing the fallback chain to continue to the next provider
+- **Fallback list now filters by configured keys** — `providers_to_try` only includes providers that have a valid API key via `get_api_key(p, config)`, preventing unnecessary fallback attempts to unconfigured providers
+
+#### Exa Deep synthesis truncated at 2000 chars (high)
+- **Removed `snippet[:2000]` truncation for deep results** — Exa Deep ($12/1k) and Deep Reasoning ($15/1k) responses were truncated to 2000 characters in the `snippet` field, destroying most of the synthesized content the user paid for. The full synthesis is now returned untruncated. The `answer` field was similarly capped at 1000 chars — also removed
+
+#### Perplexity source citations are generic placeholders (medium)
+- **Uses `data["citations"]` array from API response** instead of regex URL extraction from answer text. Citation results now have readable titles derived from URLs (e.g. `"arxiv.org — 2401.12345"`) instead of `"Source 1"` with placeholder snippets. Regex extraction remains as fallback when the API doesn't return a `citations` field
+
+### Added
+
+#### Tool parameters: `time_range`, `include_domains`, `exclude_domains`
+- **`time_range`** — new optional parameter (`day`, `week`, `month`, `year`) forwarded as both `--time-range` (Serper) and `--freshness` (Perplexity, Tavily, You.com). Previously only accessible via CLI, now LLMs can filter by recency
+- **`include_domains`** — restrict results to specific domains (e.g. `["arxiv.org", "github.com"]`). Supported by Tavily and Exa
+- **`exclude_domains`** — exclude specific domains from results (e.g. `["reddit.com"]`). Supported by Tavily and Exa
+- **Updated `depth` parameter description** — now mentions auto-selection based on query complexity when provider is `auto`
+
+### Changed
+
+#### Timeout
+- **`spawnSync` timeout increased** from 65s to 75s — provides 20s headroom over the Python-side 55s deep search timeout, accounting for retry backoff and process startup overhead
+
 ## [1.2.1] - 2026-03-11
 
 ### Added

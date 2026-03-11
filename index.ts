@@ -88,9 +88,35 @@ export default function (api: any) {
             ],
             {
               description:
-                "Exa search depth: 'deep' synthesizes across sources (4-12s), 'deep-reasoning' for complex cross-reference analysis (12-50s). Only applies when routed to Exa.",
+                "Exa search depth: 'deep' synthesizes across sources (4-12s), 'deep-reasoning' for complex cross-reference analysis (12-50s). When provider is auto, depth may be auto-selected based on query complexity.",
             },
           ),
+        ),
+        time_range: Type.Optional(
+          Type.Union(
+            [
+              Type.Literal("day"),
+              Type.Literal("week"),
+              Type.Literal("month"),
+              Type.Literal("year"),
+            ],
+            {
+              description:
+                "Filter results by recency. Applies to Serper (as tbs), Perplexity (as search_recency_filter), Tavily/You.com (as freshness). Useful for news and current events.",
+            },
+          ),
+        ),
+        include_domains: Type.Optional(
+          Type.Array(Type.String(), {
+            description:
+              "Only include results from these domains (e.g. ['arxiv.org', 'github.com']). Supported by Tavily and Exa.",
+          }),
+        ),
+        exclude_domains: Type.Optional(
+          Type.Array(Type.String(), {
+            description:
+              "Exclude results from these domains (e.g. ['reddit.com', 'pinterest.com']). Supported by Tavily and Exa.",
+          }),
         ),
       }),
       async execute(
@@ -100,6 +126,9 @@ export default function (api: any) {
           provider?: string;
           count?: number;
           depth?: string;
+          time_range?: string;
+          include_domains?: string[];
+          exclude_domains?: string[];
         },
       ) {
         const args = [scriptPath, "--query", params.query, "--compact"];
@@ -119,6 +148,19 @@ export default function (api: any) {
           args.push("--exa-depth", params.depth);
         }
 
+        if (params.time_range) {
+          args.push("--time-range", params.time_range);
+          args.push("--freshness", params.time_range);
+        }
+
+        if (params.include_domains?.length) {
+          args.push("--include-domains", ...params.include_domains);
+        }
+
+        if (params.exclude_domains?.length) {
+          args.push("--exclude-domains", ...params.exclude_domains);
+        }
+
         const envPaths = [
           path.join(PLUGIN_DIR, ".env"),
           path.join(PLUGIN_DIR, "..", "web-search-plus", ".env"),
@@ -131,7 +173,7 @@ export default function (api: any) {
 
         try {
           const child = spawnSync("python3", args, {
-            timeout: 65000,
+            timeout: 75000,
             env: childEnv,
             shell: false,
             encoding: "utf8",

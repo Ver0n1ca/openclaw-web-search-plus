@@ -459,17 +459,15 @@ def validate_api_key(provider: str, config: Dict[str, Any] = None) -> str:
                 ],
                 "provider": provider
             }
-            print(json.dumps(error_msg, indent=2), file=sys.stderr)
-            sys.exit(1)
-        
+            raise ProviderConfigError(json.dumps(error_msg))
+
         # Validate URL format
         if not key.startswith(("http://", "https://")):
-            print(json.dumps({
+            raise ProviderConfigError(json.dumps({
                 "error": "SearXNG instance URL must start with http:// or https://",
                 "provided": key,
                 "provider": provider
-            }, indent=2), file=sys.stderr)
-            sys.exit(1)
+            }))
         
         return key
     
@@ -500,16 +498,14 @@ def validate_api_key(provider: str, config: Dict[str, Any] = None) -> str:
             ],
             "provider": provider
         }
-        print(json.dumps(error_msg, indent=2), file=sys.stderr)
-        sys.exit(1)
-    
+        raise ProviderConfigError(json.dumps(error_msg))
+
     if len(key) < 10:
-        print(json.dumps({
+        raise ProviderConfigError(json.dumps({
             "error": f"API key for {provider} appears invalid (too short)",
             "provider": provider
-        }, indent=2), file=sys.stderr)
-        sys.exit(1)
-    
+        }))
+
     return key
 
 
@@ -1370,6 +1366,11 @@ def explain_routing(query: str, config: Dict[str, Any]) -> Dict[str, Any]:
 
 
 
+class ProviderConfigError(Exception):
+    """Raised when a provider is missing or has an invalid API key/config."""
+    pass
+
+
 class ProviderRequestError(Exception):
     """Structured provider error with retry/cooldown metadata."""
 
@@ -1435,6 +1436,24 @@ def reset_provider_health(provider: str) -> None:
     if provider in state:
         state.pop(provider, None)
         _save_provider_health(state)
+
+
+def _title_from_url(url: str) -> str:
+    """Derive a readable title from a URL when none is provided."""
+    try:
+        parsed = urlparse(url)
+        domain = parsed.netloc.replace("www.", "")
+        # Use last meaningful path segment as context
+        segments = [s for s in parsed.path.strip("/").split("/") if s]
+        if segments:
+            last = segments[-1].replace("-", " ").replace("_", " ")
+            # Strip file extensions
+            last = re.sub(r'\.\w{2,4}$', '', last)
+            if last:
+                return f"{domain} — {last[:80]}"
+        return domain
+    except Exception:
+        return url[:60]
 
 
 def normalize_result_url(url: str) -> str:
@@ -1759,7 +1778,7 @@ def search_exa(
             results.append({
                 "title": f"Exa {exa_depth.replace('-', ' ').title()} Synthesis",
                 "url": "",
-                "snippet": synthesized_text[:2000],
+                "snippet": synthesized_text,
                 "full_synthesis": synthesized_text,
                 "score": 1.0,
                 "grounding": grounding_citations[:10],
@@ -1781,7 +1800,7 @@ def search_exa(
                 "type": "source",
             })
 
-        answer = synthesized_text[:1000] if synthesized_text else (results[1]["snippet"] if len(results) > 1 else "")
+        answer = synthesized_text if synthesized_text else (results[1]["snippet"] if len(results) > 1 else "")
 
         return {
             "provider": "exa",
@@ -1876,13 +1895,17 @@ def search_perplexity(
     message = choices[0].get("message", {}) if choices else {}
     answer = (message.get("content") or "").strip()
 
-    urls = re.findall(r"https?://[^\s)\]}>\"']+", answer)
-    unique_urls = []
-    seen = set()
-    for u in urls:
-        if u not in seen:
-            seen.add(u)
-            unique_urls.append(u)
+    # Prefer the structured citations array from Perplexity API response
+    api_citations = data.get("citations", [])
+
+    # Fallback: extract URLs from answer text if API doesn't provide citations
+    if not api_citations:
+        api_citations = []
+        seen = set()
+        for u in re.findall(r"https?://[^\s)\]}>\"']+", answer):
+            if u not in seen:
+                seen.add(u)
+                api_citations.append(u)
 
     results = []
 
@@ -1897,12 +1920,19 @@ def search_perplexity(
             "score": 1.0,
         })
 
-    # Additional results: extracted source URLs
-    for i, u in enumerate(unique_urls[:max_results - 1]):
+    # Source results from citations
+    for i, citation in enumerate(api_citations[:max_results - 1]):
+        # citations can be plain URL strings or dicts with url/title
+        if isinstance(citation, str):
+            url = citation
+            title = _title_from_url(url)
+        else:
+            url = citation.get("url", "")
+            title = citation.get("title") or _title_from_url(url)
         results.append({
-            "title": f"Source {i+1}",
-            "url": u,
-            "snippet": "Referenced source from Perplexity answer",
+            "title": title,
+            "url": url,
+            "snippet": f"Source cited in Perplexity answer [citation {i+1}]",
             "score": round(0.9 - i * 0.1, 3),
         })
 
@@ -2494,9 +2524,11 @@ Full docs: See README.md and SKILL.md
     disabled_providers = auto_config.get("disabled_providers", [])
 
     # Start with the selected provider, then try others in priority order
+    # Only include providers that have a configured API key (except the primary,
+    # which gets a clear error if unconfigured and no fallback succeeds)
     providers_to_try = [provider]
     for p in provider_priority:
-        if p not in providers_to_try and p not in disabled_providers:
+        if p not in providers_to_try and p not in disabled_providers and get_api_key(p, config):
             providers_to_try.append(p)
 
     # Skip providers currently in cooldown
