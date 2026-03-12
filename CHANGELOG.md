@@ -3,6 +3,11 @@
 All notable changes to web-search-plus-plugin are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) + [Semantic Versioning](https://semver.org/).
 
+## [1.2.3] - 2026-03-12
+
+### Added
+- **Querit provider** — Singapore-based multilingual AI search API with 300B page index, 20+ countries and 10+ languages. Auto-routing favors Querit for multilingual/real-time queries. Configure via `QUERIT_API_KEY`.
+
 ## [1.2.2] - 2026-03-11
 
 ### Fixed
