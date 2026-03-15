@@ -3,3 +3,5 @@
 __pycache__/
 .env
 config.json
+node_modules/
+/dist

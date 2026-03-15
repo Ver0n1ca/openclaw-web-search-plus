@@ -34,10 +34,11 @@ function loadEnvFile(envPath: string): Record<string, string> {
 const PLUGIN_DIR = getPluginDir();
 const scriptPath = path.join(PLUGIN_DIR, "scripts", "search.py");
 
-export default function (api: any) {
+// Register function that receives the OpenClaw API
+function registerWebSearchPlus(api: any) {
   // Bridge OpenClaw config fields to env vars expected by search.py
   const configEnv: Record<string, string> = {};
-  const pluginConfig: Record<string, string> = (api as any)?.config ?? {};
+  const pluginConfig: Record<string, string> = api?.config ?? {};
   const configKeyMap: Record<string, string> = {
     serperApiKey: "SERPER_API_KEY",
     tavilyApiKey: "TAVILY_API_KEY",
@@ -216,3 +217,31 @@ export default function (api: any) {
     { optional: true },
   );
 }
+
+// Plugin object format expected by OpenClaw
+const plugin = {
+  id: "web-search-plus-plugin",
+  name: "Web Search Plus",
+  version: "1.2.3",
+  description: "Multi-provider web search with intelligent routing",
+  configSchema: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      serperApiKey: { type: "string" },
+      tavilyApiKey: { type: "string" },
+      queritApiKey: { type: "string" },
+      exaApiKey: { type: "string" },
+      perplexityApiKey: { type: "string" },
+      kilocodeApiKey: { type: "string" },
+      youApiKey: { type: "string" },
+      searxngInstanceUrl: { type: "string" },
+    },
+  },
+  register(api: any) {
+    registerWebSearchPlus(api);
+    api.logger?.info?.("web-search-plus-plugin: Registered web_search_plus tool");
+  },
+};
+
+export default plugin;

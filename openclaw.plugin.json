@@ -1,9 +1,15 @@
 {
   "id": "web-search-plus-plugin",
-  "kind": "skill",
   "name": "Web Search Plus",
   "version": "1.2.3",
-  "description": "Multi-provider web search (Serper/Google, Tavily, Querit/Multilingual AI Search, Exa/Neural+Deep, Perplexity, You.com, SearXNG) with intelligent auto-routing",
+  "description": "Multi-provider web search plugin for OpenClaw",
+  "tools": [
+    {
+      "name": "web_search_plus",
+      "description": "Multi-provider web search",
+      "entrypoint": "./dist/index.js"
+    }
+  ],
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -29,3 +35,4 @@
     "searxngInstanceUrl": { "label": "SearXNG Instance URL", "placeholder": "https://searx.example.com", "sensitive": false }
   }
 }
+

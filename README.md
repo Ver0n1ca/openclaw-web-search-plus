@@ -39,19 +39,26 @@ The plugin analyzes your query and picks the best provider:
 
 You can always override with `provider: "tavily"` (or any other) to force a specific provider.
 
+## Original Repo
+Modified fromhttps://github.com/robbyczgw-cla/web-search-plus-plugin (MIT License)
+Changes by Nico Wu: TS build fixes, env support, OpenClaw registration
+
 ## 📦 Installation
 
-### Option 1: npm
+### Clone
 
 ```bash
-npm install web-search-plus-plugin
+git clone https://github.com/Ver0n1ca/openclaw-web-search-plus.git
 ```
 
-### Option 2: Clone
+### build
 
 ```bash
-git clone https://github.com/robbyczgw-cla/web-search-plus-plugin.git
+cd web-search-plus-plugin
+npm install
+npm run build
 ```
+This should generate dist/index.js file.
 
 ### Configure API Keys
 
@@ -175,7 +182,9 @@ Yes, as long as the tool is allowed in the agent's tool config. The plugin runs 
 ## 📄 License
 
 MIT
+Modified from robbyczgw-cla/web-search-plus-plugin (MIT License)
+Changes by Nico Wu: TS build fixes, env support, OpenClaw
 
 ## 👤 Maintainer
 
-**robbyczgw-cla** — [GitHub](https://github.com/robbyczgw-cla)
+**Nico Wu** — [GitHub](https://github.com/Ver0n1ca)
